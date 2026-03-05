@@ -141,10 +141,13 @@ class TCPClientInterface(Interface):
             self.target_port = None
             self.socket      = connected_socket
 
-            if platform.system() == "Linux":
-                self.set_timeouts_linux()
-            elif platform.system() == "Darwin":
-                self.set_timeouts_osx()
+            try:
+                if platform.system() == "Linux":
+                    self.set_timeouts_linux()
+                elif platform.system() == "Darwin":
+                    self.set_timeouts_osx()
+            except Exception as e:
+                RNS.log("Error while setting socket timeouts for "+str(self)+": "+str(e))
 
             self.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
 
