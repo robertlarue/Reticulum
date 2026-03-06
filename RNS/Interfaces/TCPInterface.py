@@ -258,10 +258,13 @@ class TCPClientInterface(Interface):
             else:
                 raise e
 
-        if platform.system() == "Linux":
-            self.set_timeouts_linux()
-        elif platform.system() == "Darwin":
-            self.set_timeouts_osx()
+        try:
+            if platform.system() == "Linux":
+                self.set_timeouts_linux()
+            elif platform.system() == "Darwin":
+                self.set_timeouts_osx()
+        except Exception as e:
+            RNS.log("Error while setting socket timeouts for "+str(self)+": "+str(e))
         
         self.online  = True
         self.writing = False
