@@ -3,7 +3,7 @@
 # update apk index
 apk update
 # add python3 pip and cryptography dependencies
-apk add python3 python3-dev py3-cryptography wget
+apk add python3 python3-dev py3-cryptography py3-pip wget
 # must run with --no-deps because cryptography is installed via apk
 pip install rns --no-deps
 pip install lxmf --no-deps
@@ -26,9 +26,17 @@ echo "starting rnsd to generate config file"
 rnsd &
 RNS_PID=$!
 
+MAX_WAIT=30
+WAIT_COUNT=0
 while [ ! -f ~/.reticulum/config ]; do
-  echo "waiting for config file to be created..."
-  sleep 0.5
+    if [ $WAIT_COUNT -ge $MAX_WAIT ]; then
+        echo "Error: Config generation timed out after ${MAX_WAIT}s"
+        kill $RNS_PID
+        exit 1
+    fi
+    echo "waiting for config file to be created... (${WAIT_COUNT}s)"
+    sleep 1
+    WAIT_COUNT=$((WAIT_COUNT + 1))
 done
 
 sleep 1
